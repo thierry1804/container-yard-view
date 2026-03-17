@@ -1,4 +1,4 @@
-import { ZONES, MAX_TIER, CARRIERS, CLIENTS } from './config';
+import { ZONES, MAX_TIER, CARRIERS, CLIENTS, ISO_CODES, REEFER_COMMODITIES } from './config';
 import { getSize } from './rules';
 
 function genId() {
@@ -13,6 +13,25 @@ function randDate(b, f) {
 
 export function posLabel(z, r, c) {
   return `${z}-Bay${String(c + 1).padStart(2, '0')}-R${String(r + 1).padStart(2, '0')}`;
+}
+
+function generateReeferData(type) {
+  const commodity = REEFER_COMMODITIES[Math.floor(Math.random() * REEFER_COMMODITIES.length)];
+  const drift = (Math.random() - 0.5) * 4;
+  const currentTemp = parseFloat((commodity.setPoint + drift).toFixed(1));
+  const isAlert = currentTemp < commodity.min || currentTemp > commodity.max;
+  return {
+    commodity: commodity.name,
+    setPoint: commodity.setPoint,
+    tempMin: commodity.min,
+    tempMax: commodity.max,
+    currentTemp,
+    powerStatus: Math.random() > 0.05 ? 'on' : 'off',
+    ventSetting: Math.floor(Math.random() * 100) + '%',
+    humidity: Math.floor(Math.random() * 40 + 60) + '%',
+    lastTempUpdate: new Date(Date.now() - Math.floor(Math.random() * 3600000)).toISOString(),
+    tempAlert: isAlert,
+  };
 }
 
 export function generateYardData() {
@@ -34,21 +53,25 @@ export function generateYardData() {
           } else {
             const has20 = stack.some(ct => getSize(ct.type) === 20);
             if (has20) {
-              // Only allow 20' containers on top of 20'
               type = Math.random() < 0.5 ? 'empty-20' : 'full-20';
             } else {
               const tr = Math.random();
               type = tr < 0.25 ? 'empty-20' : tr < 0.45 ? 'empty-40' : tr < 0.7 ? 'full-20' : 'full-40';
             }
           }
+
+          const isReefer = type.includes('reefer');
+
           const ct = {
             zone: zone.id, row: r, col: c, tier: t, id: genId(), type,
+            isoCode: ISO_CODES[type] || '22G1',
             client: CLIENTS[Math.floor(Math.random() * CLIENTS.length)],
             entryDate: randDate(15, 0),
             exitDate: randDate(0, 10),
             weight: type.includes('full') || type === 'reefer-full'
               ? (Math.floor(Math.random() * 22000) + 4000) + ' kg'
               : '—',
+            reefer: isReefer ? generateReeferData(type) : null,
           };
           stack.push(ct);
           allContainers.push(ct);

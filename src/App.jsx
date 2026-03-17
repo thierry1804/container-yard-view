@@ -8,6 +8,8 @@ import DetailPanel from './components/DetailPanel';
 import ToastContainer from './components/ToastContainer';
 import ZoneManager from './components/ZoneManager';
 import MovementManager from './components/MovementManager';
+import Dashboard from './components/Dashboard';
+import ReeferMonitor from './components/ReeferMonitor';
 
 function App() {
   const {
@@ -28,6 +30,8 @@ function App() {
 
   const [showZoneManager, setShowZoneManager] = useState(false);
   const [showMovementManager, setShowMovementManager] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [showReeferMonitor, setShowReeferMonitor] = useState(false);
 
   const zoneTabs = [
     { id: 'all', label: 'Tout' },
@@ -47,6 +51,8 @@ function App() {
         setStackPopup(null);
         setShowZoneManager(false);
         setShowMovementManager(false);
+        setShowDashboard(false);
+        setShowReeferMonitor(false);
       }
     };
     document.addEventListener('keydown', handler);
@@ -58,6 +64,8 @@ function App() {
       <Header
         onOpenZoneManager={() => setShowZoneManager(true)}
         onOpenMovementManager={() => setShowMovementManager(true)}
+        onOpenDashboard={() => setShowDashboard(true)}
+        onOpenReeferMonitor={() => setShowReeferMonitor(true)}
       />
       <div className="app">
         <Sidebar
@@ -165,6 +173,24 @@ function App() {
           containerDeparture={containerDeparture}
           containerTransfer={containerTransfer}
           movementLog={movementLog}
+        />
+      )}
+
+      {/* Dashboard */}
+      {showDashboard && (
+        <Dashboard
+          zones={zones}
+          stacks={stacks}
+          allContainers={allContainers}
+          onClose={() => setShowDashboard(false)}
+        />
+      )}
+
+      {/* Reefer Monitor */}
+      {showReeferMonitor && (
+        <ReeferMonitor
+          allContainers={allContainers}
+          onClose={() => setShowReeferMonitor(false)}
         />
       )}
 

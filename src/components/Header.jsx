@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function Header({ onOpenZoneManager, onOpenMovementManager }) {
+export default function Header({ onOpenZoneManager, onOpenMovementManager, onOpenDashboard, onOpenReeferMonitor }) {
   const [time, setTime] = useState('');
 
   useEffect(() => {
@@ -22,6 +22,14 @@ export default function Header({ onOpenZoneManager, onOpenMovementManager }) {
         </div>
       </div>
       <div className="header-right">
+        <button className="header-action-btn" onClick={onOpenDashboard}>
+          <span className="header-action-icon">▦</span>
+          Dashboard
+        </button>
+        <button className="header-action-btn" onClick={onOpenReeferMonitor}>
+          <span className="header-action-icon">❄</span>
+          Reefers
+        </button>
         <button className="header-action-btn" onClick={onOpenMovementManager}>
           <span className="header-action-icon">↕</span>
           Mouvements

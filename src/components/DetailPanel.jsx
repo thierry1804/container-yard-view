@@ -1,10 +1,11 @@
-import { TYPE_LABELS } from '../data/config';
+import { TYPE_LABELS, ISO_DESCRIPTIONS } from '../data/config';
 
 export default function DetailPanel({ container, stacks, onClose }) {
   if (!container) return null;
 
   const ct = container;
   const stack = stacks[ct.zone]?.[ct.row]?.[ct.col] || [];
+  const r = ct.reefer;
 
   return (
     <div className="detail-panel open">
@@ -20,6 +21,15 @@ export default function DetailPanel({ container, stacks, onClose }) {
           <span className="detail-status-chip" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
             Tier {ct.tier}/{stack.length}
           </span>
+          {ct.isoCode && (
+            <span className="detail-status-chip" style={{ background: 'var(--surface-3)', color: 'var(--text-dim)' }}>
+              ISO {ct.isoCode}
+            </span>
+          )}
+        </div>
+        <div className="detail-field">
+          <label>Code ISO 6346</label>
+          <div className="val mono">{ct.isoCode || '—'} {ISO_DESCRIPTIONS[ct.isoCode] ? `— ${ISO_DESCRIPTIONS[ct.isoCode]}` : ''}</div>
         </div>
         <div className="detail-field">
           <label>Position complète</label>
@@ -55,6 +65,46 @@ export default function DetailPanel({ container, stacks, onClose }) {
             {ct.tier === stack.length ? '✓ Oui (sommet de pile)' : '✗ Non (conteneur en dessous)'}
           </div>
         </div>
+
+        {/* Reefer section */}
+        {r && (
+          <>
+            <div className="detail-section-divider">Reefer Monitoring</div>
+            <div className="detail-field">
+              <label>Marchandise</label>
+              <div className="val">{r.commodity}</div>
+            </div>
+            <div className="detail-field">
+              <label>Température</label>
+              <div className="val mono">
+                <span style={{ color: r.tempAlert ? 'var(--danger)' : 'var(--success)' }}>
+                  {r.currentTemp}°C
+                </span>
+                {' '} (consigne: {r.setPoint}°C · plage: {r.tempMin} ~ {r.tempMax}°C)
+              </div>
+              {r.tempAlert && (
+                <div style={{ color: 'var(--danger)', fontSize: 11, fontWeight: 700, marginTop: 4 }}>
+                  ALERTE : Température hors plage !
+                </div>
+              )}
+            </div>
+            <div className="detail-field">
+              <label>Alimentation</label>
+              <div className="val" style={{ color: r.powerStatus === 'on' ? 'var(--success)' : 'var(--danger)' }}>
+                {r.powerStatus === 'on' ? 'Sous tension' : 'HORS TENSION'}
+              </div>
+            </div>
+            <div className="detail-field">
+              <label>Ventilation / Humidité</label>
+              <div className="val mono">{r.ventSetting} / {r.humidity}</div>
+            </div>
+            <div className="detail-field">
+              <label>Dernière MAJ température</label>
+              <div className="val mono">{new Date(r.lastTempUpdate).toLocaleString('fr-FR')}</div>
+            </div>
+          </>
+        )}
+
         <div className="detail-field">
           <label>Source</label>
           <div className="val" style={{ color: 'var(--accent)' }}>CargoWise → Sync auto</div>
